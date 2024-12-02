@@ -58,6 +58,7 @@
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
         <SanitizedProjectName>TaxGtin_demo</SanitizedProjectName>
+        <Custom_Styles>Sky|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Sky.vsf</Custom_Styles>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_UsePackage>DTImg;soapserver;FireDACIBDriver;vclwinx;DataSnapServer;ACBr_BPeDabpeESCPOS;ACBr_TCP;ACBr_ONE;ACBr_NFCom;fmx;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;DBXMSSQLDriver;FireDACCommonODBC;emsclient;ACBr_OpenSSL;Olimpia_TEF;appanalytics;IndyProtocols;vclx;Skia.Package.RTL;frxe28;dbxcds;vcledge;FmxTeeUI;ACBr_BoletoRL;DBXFirebirdDriver;ACBr_CTeDacteFR;vclribbon;ACBr_NFCeECFVirtual;ACBr_DCeDACERL;JvAppFrm;FireDACSqliteDriver;DbxClientDriver;TInjectCollection;JclVcl;soapmidas;ACBr_NF3eDANF3eESCPOS;TeeUI;ACBr_PagFor;Jcl;dbexpress;JvManagedThreads;ACBr_Reinf;ACBr_NFSeXDanfseFPDF;inet;ACBr_BoletoFPDF;vcltouch;ImportExcel;JvDB;FireDACDBXDriver;ACBr_NF3eDANF3eRL;fmxdae;JvCustom;EhLibIBXDataDrivers280;CustomIPTransport;FireDACMSSQLDriver;JvSystem;ZCore;ACBr_NFSeX;ZParseSql;JvControls;ACBr_NFe;ACBr_CTeDacteRL;JvCrypt;JvJans;JvMM;IndySystem;ACBr_Diversos;ACBr_GNREGuiaRL;ACBr_NFSeXDanfseRL;ACBr_SAT;JvGlobus;ibxbindings;Graphics32_RBC_XE11;ACBr_CIOT;ACBr_TEFD;JclContainers;JvPageComps;vclFireDAC;ACBr_SPED;ACBr_CTe;ACBr_SATWS;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;emsserverresource;ACBr_SEF2;ACBr_LCDPR;ACBr_SATExtratoFPDF;ZComponent;bindcompdbx;rtl;FireDACMySQLDriver;ACBr_NFeDanfeFR;ACBr_DCe;frce;ACBr_BPe;DBXSqliteDriver;ACBr_Sintegra;DBXSybaseASEDriver;JvRuntimeDesign;ACBr_Serial;ACBr_Comum;ACBr_MDFe;JvXPCtrls;ACBr_NFeDanfeESCPOS;vclimg;DataSnapFireDAC;inetdbxpress;FireDAC;JvDocking;RESTDWCore;xmlrtl;FMXfrxDB28;JvDlgs;ibxpress;dsnap;JvCmp;FireDACDb2Driver;DBXOracleDriver;DTEmailOAuth2;DBXInformixDriver;EhLibDBXDataDrivers280;vclib;ACBr_SATECFVirtual;fmxobj;bindcompvclsmp;DataSnapNativeClient;ACBr_SATExtratoFR;CEF4Delphi;ACBr_synapse;DatasnapConnectorsFreePascal;SVGIconImageList;ACBr_NF3e;ACBr_PAF;ACBr_OpenDelivery;ACBr_NFeDanfeFPDF;ACBr_MDFeDamdfeFR;ACBr_SPEDImportar;emshosting;FireDACCommonDriver;DTDiscord;ACBr_ADRCST;EhLib280;ACBr_MTER;IndyIPClient;frxTee28;bindcompvclwinx;ACBr_Convenio115;EsVclComponents;ACBr_NFSeDanfseFR;emsedge;bindcompfmx;JvBands;inetdb;ibmonitor;pracomponents;GR32_R;FireDACASADriver;ACBr_LFD;Tee;SVGIconImageListFMX;vclactnband;fmxFireDAC;FMXfrx28;FireDACInfxDriver;DBXMySQLDriver;DTMercadoPagoTEF;VclSmp;ACBr_Ponto;DataSnapCommon;JvPascalInterpreter;fmxase;frx28;JvPluginSystem;DBXOdbcDriver;JvTimeFramework;dbrtl;FireDACOracleDriver;Skia.Package.FMX;ACBr_NFSeDanfseRL;ACBr_NFSe;TeeDB;ACBre_Social;FireDACMSAccDriver;DataSnapIndy10ServerTransport;JclDeveloperTools;DataSnapConnectors;ACBr_ANe;ACBr_SATExtratoRL;vcldsnap;DBXInterBaseDriver;frxDB28;FireDACMongoDBDriver;JvWizards;ACBR_DeSTDA;ACBr_GNRE;ACBr_EDI;FireDACTDataDriver;Skia.Package.VCL;vcldb;ACBr_Integrador;ACBr_PIXCD;TBGWebCharts;IconFontsImageList;JvCore;ACBr_BoletoFR;fs28;bindcomp;IndyCore;RESTBackendComponents;ZPlain;FireDACADSDriver;MSNPopUpp;RESTComponents;ACBr_NFSeXDANFSeFR;IndyIPServer;vcl;dsnapxml;adortl;dsnapcon;DataSnapClient;DataSnapProviderClient;JvDotNetCtrls;JvHMI;ACBr_MDFeDamdfeRL;DBXDb2Driver;ACBr_Boleto;emsclientfiredac;FireDACPgDriver;FireDACDSDriver;TCFLib280;EhLibADODataDrivers280;JvPrintPreview;tethering;JvStdCtrls;ACBrBaaS;ZDbc;ACBr_SATExtratoESCPOS;bindcompvcl;ACBr_BlocoX;ACBr_GTIN;SGerenciaPago;CloudService;DBXSybaseASADriver;ACBr_OFX;IconFontsImageListFMX;ACBr_PAFNFCe;FMXTee;ACBr_DebitoAutomatico;ACBr_NFeDanfeRL;ACBr_GNREGuiaFR;soaprtl;RaizeComponentsVcl;JvNet;$(DCC_UsePackage)</DCC_UsePackage>
@@ -86,6 +87,8 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -126,6 +129,11 @@
                 <Source>
                     <Source Name="MainSource">TaxGtin_demo.dpr</Source>
                 </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\DTEmailAuth.bpl">File C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\DTEmailAuth.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
                 <DeployFile LocalName="Win32\Debug\TaxGtin_demo.exe" Configuration="Debug" Class="ProjectOutput">

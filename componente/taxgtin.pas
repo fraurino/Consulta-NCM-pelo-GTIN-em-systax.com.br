@@ -13,11 +13,11 @@
 ####################################################################################################################
                                   Evolução do Código
 ####################################################################################################################
-  Autor........:
-  Email........:
-  Data.........:
-  Identificador:
-  Modificação..:
+  Autor........:  Alex B, Passos
+  Github.......:  https://github.com/dataintsistemas
+  Data.........:  02/12/2024 12:16:35
+  Identificador:  Alex
+  Modificação..:  Correção da acentuações
 ####################################################################################################################
 }
 
@@ -30,7 +30,7 @@ unit taxGtin;
 interface
 
 uses
-  Classes, SysUtils, StrUtils,
+  Classes, SysUtils, StrUtils,  StdCtrls,
   {$IFDEF FPC}
   fphttp, fphttpclient, opensslsockets, sslsockets, DOM, XMLRead
   {$ELSE}
@@ -45,23 +45,28 @@ type
     fDESCRICAO: string;
     fEAN: string;
     fNCM: string;
+    fCEST: string;
     fretorno: string;
     const
       Furl = 'https://www.systax.com.br/ean/';
     procedure setEAN(AValue: string);
     procedure subtrairdados(informacao: string);
+    procedure subtrairdadoscest (informacao : string );
     function RemoverEspacosDuplos(const AString: String): String;
     function RetornarConteudoEntre(const Frase, Inicio, Fim: String; IncluiInicioFim: Boolean): string;
+    procedure ParseHTML(const HTMLContent: string; var DataList: TStringList);
     function CharIsNum(const C: Char): Boolean;
     function OnlyNumber(const AValue: String): String;
   public
     procedure executar;
+    procedure NCMToCEST;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
     property ean: string read fEAN write setEAN;
     property descricao: string read fDESCRICAO;
     property ncm: string read fNCM;
+    property cest: string read fCEST;
     property retorno: string read fretorno;
   end;
 
@@ -73,6 +78,66 @@ procedure register;
 begin
   RegisterComponents('Systax', [TtaxGtin]);
 end;
+
+procedure DisplayData(const DataList: TStringList; Memo: TListBox);
+var
+  I: Integer;
+begin
+  Memo.Clear;
+  for I := 0 to DataList.Count - 1 do
+    Memo.Items.Add(DataList[I]);
+end;
+
+function GetHTMLContent(const URL: string): string;
+var
+  HTTP: TIdHTTP;
+begin
+  HTTP := TIdHTTP.Create(nil);
+  try
+    Result := HTTP.Get(URL);
+  finally
+    HTTP.Free;
+  end;
+end;
+procedure TtaxGtin.ParseHTML(const HTMLContent: string; var DataList: TStringList);
+var
+  StartPos, EndPos: Integer;
+  RowContent : string ;
+  i: Integer;  // Inicializando o contador
+begin
+  DataList.Clear;
+  i := 0;  // Garantir que i comece com zero
+  StartPos := Pos('<tr>', HTMLContent);
+
+  while StartPos > 0 do
+  begin
+    // Encontra o próximo <tr> (linha da tabela)
+    EndPos := PosEx('</tr>', HTMLContent, StartPos);
+    if EndPos = 0 then Break;
+
+    // Extrai o conteúdo da linha
+    RowContent := Copy(HTMLContent, StartPos, EndPos - StartPos);
+
+    // Extrai o CEST
+    StartPos := Pos('<td class="text-right">', RowContent);
+    if StartPos > 0 then
+    begin
+      StartPos := PosEx('>', RowContent, StartPos) + 1;
+      EndPos := PosEx('</td>', RowContent, StartPos);
+      fCEST := Trim(Copy(RowContent, StartPos, EndPos - StartPos));;
+      // Incrementa o contador após extrair o CEST
+      i := i + 1;
+    end;
+
+    // Se encontrarmos 3 itens, saímos do loop
+    if i = 1 then
+      Break;
+
+    // Avança para o próximo <tr>
+    StartPos := PosEx('<tr>', HTMLContent, EndPos);
+  end;
+end;
+
 
 { TtaxGtin }
 function TtaxGtin.RetornarConteudoEntre(const Frase, Inicio, Fim: String; IncluiInicioFim: Boolean): string;
@@ -103,33 +168,15 @@ begin
       Result := Copy(s, 1, j - 1); // Retorna apenas o conteúdo entre início e fim
   end;
 
+  // Alex B, Passos update UTF8
   // Garantir que o resultado seja tratado como UTF-8
-  Result := UTF8ToString(Result);
+  {$IFDEF FPC}
+    Result := UTF8ToString(Result);
+  {$ELSE}
+    Result := Result;
+  {$ENDIF}
+
 end;
-
-    {
-function TtaxGtin.RetornarConteudoEntre(const Frase, Inicio, Fim: String; IncluiInicioFim: Boolean): string;
-var
-  i: integer;
-  s: string;
-begin
-  result := '';
-  i := pos(Inicio, Frase);
-  if i = 0 then
-    Exit;
-
-  if IncluiInicioFim then
-  begin
-    s := Copy(Frase, i, maxInt);
-    result := Copy(s, 1, pos(Fim, s) + Length(Fim) - 1);
-  end
-  else
-  begin
-    s := Copy(Frase, i + length(Inicio), maxInt);
-    result := Copy(s, 1, pos(Fim, s) - 1);
-  end;
-end;   }
-
 function TtaxGtin.RemoverEspacosDuplos(const AString: String): String;
 begin
   Result := Trim(AString);
@@ -172,6 +219,8 @@ var
 var
   HTTPClient: TIdHTTP;
   SSLHandler: TIdSSLIOHandlerSocketOpenSSL;
+  VStream : TStringStream;
+  VRetorno : String;
 {$ENDIF}
 begin
   {$IFDEF FPC}
@@ -185,7 +234,14 @@ begin
   end;
   {$ELSE}
 
+  // Ajuste feito para retorno de dados com acentos
+  VStream := TStringStream.Create('', TEncoding.ANSI);     // Alex B, Passos update UTF8
+
   HTTPClient := TIdHTTP.Create(nil);
+
+  // Ajuste feito para retorno de dados com acentos
+  HTTPClient.Request.UserAgent := 'Mozilla/4.0 (compatible; MSIE 9.0)';    // Alex B, Passos update UTF8
+
   SSLHandler := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
   try
     SSLHandler.SSLOptions.Method := sslvTLSv1_2;
@@ -193,17 +249,12 @@ begin
     HTTPClient.IOHandler := SSLHandler;
 
     // Obtemos o conteúdo do servidor
-    var Response: string := HTTPClient.Get(Furl + fEAN);
+    // Ajuste feito para retorno de dados com acentos
+    HTTPClient.Get(Furl + fEAN, VStream);
+    VRetorno := VStream.DataString;      // Alex B, Passos update UTF8
+    subtrairdados(VRetorno);
 
-    // Decodificar o conteúdo para UTF-8
-    {$IF CompilerVersion >= 23.0} // Delphi XE2 ou superior
-    Response := TEncoding.UTF8.GetString(TEncoding.UTF8.GetBytes(Response));
-    {$ELSE}
-    Response := UTF8Decode(Response);
-    {$IFEND}
 
-    // Processar os dados
-    subtrairdados(Response);
   finally
     SSLHandler.Free;
     HTTPClient.Free;
@@ -213,7 +264,75 @@ begin
   {$ENDIF}
 end;
 
+
+procedure TtaxGtin.NCMToCEST;
+var
+  i: integer;
+  HTMLContent: string;
+  DataList: TStringList;
+{$IFDEF FPC}
+var
+  HTTPClient: TFPHTTPClient;
+{$ELSE}
+var
+  HTTPClient: TIdHTTP;
+  SSLHandler: TIdSSLIOHandlerSocketOpenSSL;
+{$ENDIF}
+
+const urlsite : string= 'http://www.buscacest.com.br/?utf8=%E2%9C%93&ncm=' ;
+begin
+  {$IFDEF FPC}
+  HTTPClient := TFPHTTPClient.Create(nil);
+  try
+    subtrairdadoscest(HTTPClient.Get(urlsite + fNCM));
+  except
+    raise Exception.Create('Erro ao consultar EAN ' + fNCM);
+  finally
+    HTTPClient.Free;
+  end;
+  {$ELSE}
+
+  HTTPClient := TIdHTTP.Create(nil);
+  SSLHandler := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
+  try
+    SSLHandler.SSLOptions.Method := sslvTLSv1_2;
+    SSLHandler.SSLOptions.Mode := sslmClient;
+    HTTPClient.IOHandler := SSLHandler;
+
+    // Obtemos o conteúdo do servidor
+    var Response: string := HTTPClient.Get(urlsite + fNCM);
+
+    // Decodificar o conteúdo para UTF-8
+    {$IF CompilerVersion >= 23.0} // Delphi XE2 ou superior
+    Response := TEncoding.UTF8.GetString(TEncoding.UTF8.GetBytes(Response));
+    {$ELSE}
+    Response := UTF8Decode(Response);
+    {$IFEND}
+
+    // Processar os dados
+    subtrairdadoscest(Response);
+
+
+  finally
+    SSLHandler.Free;
+    HTTPClient.Free;
+  end;
+
+  {$ENDIF}
+
+
+
+end;
+
+
 procedure TtaxGtin.subtrairdados(informacao: string);
+var
+  i: integer;
+  HTMLContent: string;
+  DataList: TStringList;
+  const //alterar tags se site sofrer alteracao;
+  taginihtml : string = '<h2 class="fonte-open-title h1-title" style="text-align:center;">';
+  tagimhtml  : string = '</h2>';
 begin
   fretorno := informacao;
 
@@ -224,12 +343,38 @@ begin
     fNCM := '';
   end;
 
-  fNCM := RetornarConteudoEntre(fretorno, 'NCM:', '</a>', false);
+  fNCM := RetornarConteudoEntre(fretorno, 'NCM:', '</a>', false) ;
   fNCM := OnlyNumber(fNCM);
-  fNCM := Copy(fNCM, 1, 8);
+  fNCM := copy(fNCM, 1,8);
+  fDescricao :=  (RemoverEspacosDuplos
+                    (
+                    RetornarConteudoEntre(
+                          fretorno,
+                          taginihtml,
+                          tagimhtml,
+                          false)
+                     )
+                ) ;
+  //busca CEST pelo NCM em outro site.
+  NCMToCEST ;
 
-  fDescricao := RemoverEspacosDuplos(
-  RetornarConteudoEntre(fretorno, '<h2 class="fonte-open-title h1-title" style="text-align:center;">', '</h2>', false));
+
+end;
+
+procedure TtaxGtin.subtrairdadoscest(informacao: string);
+var
+  i: integer;
+  HTMLContent: string;
+  DataList: TStringList;
+begin
+      // Obtendo o conteúdo HTML
+      HTMLContent := informacao;
+      DataList := TStringList.Create;
+      try
+        ParseHTML(HTMLContent, DataList);
+      finally
+        DataList.Free;
+      end;
 end;
 
 constructor TtaxGtin.Create(AOwner: TComponent);
@@ -258,3 +403,4 @@ end.
        compilação (último digito);
 ####################################################################################################################
 }
+

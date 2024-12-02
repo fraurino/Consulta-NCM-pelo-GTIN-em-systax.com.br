@@ -1,4 +1,29 @@
-﻿unit uTaxGtin;
+﻿{####################################################################################################################
+                              TaxGtin get website  https://www.systax.com.br/ean/7894900010015
+####################################################################################################################
+    Owner.....: Francisco Aurino - franciscoaurino@gmail.com   - +55 98 9 8892-3379
+####################################################################################################################
+  Obs:
+     - Código aberto a comunidade Delphi/Lazarus, desde que mantenha os dados dos autores e
+       mantendo sempre o nome do IDEALIZADOR Francisco Aurino
+     - Colocar na evolução as Modificação juntamente com as informaçoes do colaborador: Data, Nova Versao, Autor;
+     - Mantenha sempre a versao mais atual acima das demais;
+     - Todo Commit ao repositório deverá ser declarado as mudança na UNIT e ainda o Incremento da Versão de
+       compilação (último digito);
+####################################################################################################################
+                                  Evolução do Código
+####################################################################################################################
+  Autor........:
+  Email........:
+  Data.........:
+  Identificador:
+  Modificação..:
+####################################################################################################################
+}
+
+
+
+unit uTaxGtin;
 
 interface
 
@@ -12,7 +37,13 @@ type
     gtin: TEdit;
     ncm: TEdit;
     descricao: TEdit;
+    Label1: TLabel;
+    cest: TEdit;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
     procedure Button1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -32,16 +63,25 @@ uses
 procedure TForm1.Button1Click(Sender: TObject);
 var
   taxGtin : TtaxGtin;
+
 begin
   taxGtin := TtaxGtin.Create(nil);
+  try
+    taxGtin.ean      := gtin.text;
+    taxGtin.executar ;
+    ncm.Text         := taxGtin.ncm;
+    descricao.text   := taxGtin.descricao;
+    cest.text        := taxGtin.cest;
+    taxGtin.ean      := '';
+  finally
+    taxGtin.Free;
+  end;
+end;
 
-  taxGtin.ean      := gtin.text;
-  taxGtin.executar ;
-  ncm.Text         := taxGtin.ncm;
-  descricao.text   := taxGtin.descricao;
-  taxGtin.ean      := '';
-
-  taxGtin.Free;
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  self.Caption   := 'Consulta NCM, CEST via site www.systax.com.br | http://www.buscacest.com.br';
+  Label4.Caption := 'Fonte : '+ self.Caption;
 end;
 
 end.
