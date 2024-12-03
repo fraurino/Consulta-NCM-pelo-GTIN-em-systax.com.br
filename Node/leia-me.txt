@@ -1,0 +1,2 @@
+baixar e instalar o node 
+https://nodejs.org/pt

@@ -1,0 +1,121 @@
+const axios = require('axios');
+const fs = require('fs');
+
+class TaxGtin {
+    constructor() {
+        this.FURL = 'https://www.systax.com.br/ean/';
+        this.descricao = "";
+        this.ean = "";
+        this.ncm = "";
+        this.cest = "";
+        this.retorno = "";
+    }
+
+    set_ean(value) {
+        this.ean = value;
+    }
+
+    async ncm_to_cest() {
+        const url = `http://www.buscacest.com.br/?utf8=%E2%9C%93&ncm=${this.ncm}`;
+        try {
+            const response = await axios.get(url);
+            this.subtrair_dados_cest(response.data);
+        } catch (e) {
+            console.log(`Erro ao buscar CEST: ${e}`);
+        }
+    }
+
+    subtrair_dados(informacao) {
+        this.retorno = informacao;
+        if (informacao.includes("01001345450801")) {
+            this.descricao = "Código de barra inválido!";
+            this.ncm = "";
+        } else {
+            this.ncm = this.retornar_conteudo_entre(informacao, "NCM:", "</a>", false);
+            this.ncm = this.only_number(this.ncm).substring(0, 8);
+            this.descricao = this.remover_espacos_duplos(
+                this.retornar_conteudo_entre(
+                    informacao,
+                    '<h2 class="fonte-open-title h1-title" style="text-align:center;">',
+                    '</h2>',
+                    false
+                )
+            );
+            this.ncm_to_cest();
+        }
+    }
+
+    subtrair_dados_cest(informacao) {
+        const rows = informacao.split('<tr>');
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].includes('class="text-right"')) {
+                const columns = rows[i].split('<td class="text-right">');
+                if (columns.length > 1) {
+                    this.cest = columns[1].split('</td>')[0].trim();
+                    if (i === 1) break;
+                }
+            }
+        }
+    }
+
+    retornar_conteudo_entre(frase, inicio, fim, inclui_inicio_fim) {
+        try {
+            const start = frase.indexOf(inicio) + (inclui_inicio_fim ? 0 : inicio.length);
+            const end = frase.indexOf(fim, start);
+            return frase.substring(start, end);
+        } catch (e) {
+            return "";
+        }
+    }
+
+    remover_espacos_duplos(string) {
+        return string.replace(/\s+/g, ' ').trim();
+    }
+
+    only_number(value) {
+        return value.replace(/\D/g, '');
+    }
+
+    async send_get(endpoint) {
+        try {
+            const url = `${this.FURL}${endpoint}`;
+            const response = await axios.get(url);
+            const content = response.data;
+            this.subtrair_dados(content);
+            return response.status, content;
+        } catch (e) {
+            console.log(`Erro ao enviar GET: ${e}`);
+            return null;
+        }
+    }
+}
+
+async function main() {
+    const barrasFile = 'barras.txt';
+    const outputFile = 'resultado.txt';
+
+    // Lê o código EAN do arquivo barras.txt
+    try {
+        const ean_code = fs.readFileSync(barrasFile, 'utf8').trim();
+        if (!ean_code) {
+            throw new Error("Código de barras não encontrado no arquivo.");
+        }
+
+        const tax_gtin = new TaxGtin();
+        tax_gtin.set_ean(ean_code);
+
+        const [status_code, _] = await tax_gtin.send_get(ean_code);
+
+        if (status_code === 200) {
+            const outputData = `DESCRICAO;GTIN;NCM;CEST\n${tax_gtin.descricao};${ean_code};${tax_gtin.ncm};${tax_gtin.cest}\n`;
+            fs.writeFileSync(outputFile, outputData, 'utf8');
+            console.log(`Dados salvos no arquivo: ${outputFile}`);
+        } else {
+            console.log(`Erro ao buscar os dados. Código HTTP: ${status_code}`);
+        }
+    } catch (e) {
+        console.error(`Erro ao processar: ${e.message}`);
+    }
+}
+
+main();
