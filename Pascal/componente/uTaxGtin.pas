@@ -28,7 +28,7 @@ unit uTaxGtin;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,  System.Threading,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
 
 type
@@ -42,8 +42,12 @@ type
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    Memo1: TMemo;
+    Memo2: TMemo;
+    Button3: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -63,20 +67,72 @@ uses
 procedure TForm1.Button1Click(Sender: TObject);
 var
   taxGtin : TtaxGtin;
-
+  i : integer;
 begin
   taxGtin := TtaxGtin.Create(nil);
   try
-    taxGtin.ean      := gtin.text;
-    taxGtin.executar ;
-    ncm.Text         := taxGtin.ncm;
-    descricao.text   := taxGtin.descricao;
-    cest.text        := taxGtin.cest;
-    taxGtin.ean      := '';
+   taxGtin.ean      := gtin.text;
+   taxGtin.executar ;
+   ncm.Text         := taxGtin.ncm;
+   descricao.text   := taxGtin.descricao;
+   cest.text        := taxGtin.cest;
+   taxGtin.ean      := '';
   finally
     taxGtin.Free;
   end;
 end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+var
+  taxGtin: TtaxGtin;
+  Resultado: string;
+  gtin: string;
+  i : integer;
+ begin
+        try
+          Memo1.Lines.Add('🚀 Iniciando a busca... ' + FormatDateTime('dd-mm-yyyy hh:nn:ss', Now));
+          for i := 0 to Memo2.Lines.Count - 1 do
+          begin
+            taxGtin := TtaxGtin.Create(nil);
+            try
+              gtin := '';
+              gtin := Memo2.Lines[i];
+              taxGtin.ean := gtin;
+              taxGtin.executar;
+              Resultado := Format('[%d]: %s |%s | %s | %s | %s',
+                [i, FormatDateTime('dd-mm-yyyy hh:nn:ss', Now), taxGtin.ean, taxGtin.descricao, taxGtin.ncm, taxGtin.cest]);
+                if (taxGtin.descricao.IsEmpty) and (taxGtin.descricao.IsEmpty) and (taxGtin.descricao.IsEmpty) then
+                begin
+                  Resultado := taxGtin.ean + ' não encontrado';
+                end  ;
+                if taxGtin.descricao.IsEmpty then
+                begin
+                    Resultado := Format('[%d]: %s |%s | %s | %s | %s',
+                   [i, FormatDateTime('dd-mm-yyyy hh:nn:ss', Now), taxGtin.ean, 'sem descricao', taxGtin.ncm, taxGtin.cest]);
+                end;
+                if taxGtin.ncm.IsEmpty then
+                begin
+                    Resultado := Format('[%d]: %s |%s | %s | %s | %s',
+                   [i, FormatDateTime('dd-mm-yyyy hh:nn:ss', Now), taxGtin.ean, taxgtin.descricao, 'sem ncm', taxGtin.cest]);
+                end;
+                if taxGtin.cest.IsEmpty then
+                begin
+                    Resultado := Format('[%d]: %s |%s | %s | %s | %s',
+                   [i, FormatDateTime('dd-mm-yyyy hh:nn:ss', Now), taxGtin.ean, taxGtin.descricao, taxGtin.ncm, 'sem cest']);
+                end;
+               Memo1.Lines.Add(Resultado);
+            finally
+              taxGtin.Free;
+            end;
+          end;
+          Memo1.Lines.Add('✅ Todas as buscas concluídas! ' + FormatDateTime('dd-mm-yyyy hh:nn:ss', Now));
+        except
+          on E: Exception do
+          begin
+            Memo1.Lines.Add('❌ Erro ao buscar GTIN ' + gtin + ': ' + E.Message);
+          end;
+        end;
+ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin

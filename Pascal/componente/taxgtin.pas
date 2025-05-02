@@ -19,6 +19,13 @@
   Identificador:  Alex
   Modificação..:  Correção da acentuações
 ####################################################################################################################
+  Autor........:  Aurino
+  Github.......:  https://github.com/fraurino
+  Data.........:  02/05/2025 10:44
+  Identificador:  Aurino
+  Modificação..:  #1 - Mudanção da requisicao IDHttp para HttpClient, evitando dependencia de dll OpenSSL;
+                  #2 - Melhoria na validação do codigo de barra caso nao exista no portal;
+####################################################################################################################
 }
 
 unit taxGtin;
@@ -30,7 +37,8 @@ unit taxGtin;
 interface
 
 uses
-  Classes, SysUtils, StrUtils,  StdCtrls,
+  Classes, SysUtils, StrUtils,  StdCtrls,  System.RegularExpressions,
+  System.Net.HttpClient, System.Net.URLClient, System.NetConsts,
   {$IFDEF FPC}
   fphttp, fphttpclient, opensslsockets, sslsockets, DOM, XMLRead
   {$ELSE}
@@ -211,7 +219,54 @@ begin
   fEAN := AValue;
 end;
 
+
+
 procedure TtaxGtin.executar;
+{$IFDEF FPC}
+var
+  HTTPClient: TFPHTTPClient;
+{$ELSE}
+var
+  HTTPClient: THTTPClient;
+  Response: IHTTPResponse;
+  VRetorno: string;
+{$ENDIF}
+begin
+  {$IFDEF FPC}
+  HTTPClient := TFPHTTPClient.Create(nil);
+  try
+    subtrairdados(HTTPClient.Get(Furl + fEAN));
+  except
+    raise Exception.Create('Erro ao consultar EAN ' + fEAN);
+  finally
+    HTTPClient.Free;
+  end;
+  {$ELSE}
+  HTTPClient := THTTPClient.Create;
+  try
+    fDESCRICAO := '';
+    fNCM       := '';
+    fCEST      := '';
+
+    Response := HTTPClient.Get(Furl + fEAN);
+    if Response.StatusCode = 200 then
+    begin
+      VRetorno := Response.ContentAsString(TEncoding.ANSI);
+      //VRetorno := Response.ContentAsString(TEncoding.UTF8);
+
+     subtrairdados(VRetorno);
+    end
+    else
+      raise Exception.CreateFmt('Erro ao consultar EAN %s. Código HTTP: %d', [fEAN, Response.StatusCode]);
+  finally
+    HTTPClient.Free;
+  end;
+  {$ENDIF}
+end;
+
+
+(*
+procedure TtaxGtin.executar; //dependencia de dll openssll
 {$IFDEF FPC}
 var
   HTTPClient: TFPHTTPClient;
@@ -250,6 +305,11 @@ begin
 
     // Obtemos o conteúdo do servidor
     // Ajuste feito para retorno de dados com acentos
+
+    fDESCRICAO := '';
+    fNCM:= '';
+    fCEST:='';
+
     HTTPClient.Get(Furl + fEAN, VStream);
     VRetorno := VStream.DataString;      // Alex B, Passos update UTF8
     subtrairdados(VRetorno);
@@ -264,8 +324,45 @@ begin
   {$ENDIF}
 end;
 
+  *)
 
 procedure TtaxGtin.NCMToCEST;
+var
+  HTMLContent: string;
+  Response: IHTTPResponse;
+  HTTPClient: THTTPClient;
+const
+  urlsite: string = 'http://www.buscacest.com.br/?utf8=%E2%9C%93&ncm=';
+begin
+  {$IFDEF FPC}
+  var HTTPClient: TFPHTTPClient;
+  HTTPClient := TFPHTTPClient.Create(nil);
+  try
+    subtrairdadoscest(HTTPClient.Get(urlsite + fNCM));
+  except
+    raise Exception.Create('Erro ao consultar NCM ' + fNCM);
+  finally
+    HTTPClient.Free;
+  end;
+  {$ELSE}
+  HTTPClient := THTTPClient.Create;
+  try
+    Response := HTTPClient.Get(urlsite + fNCM);
+    if Response.StatusCode = 200 then
+    begin
+      // Use UTF-8 para garantir acentuação correta
+      HTMLContent := Response.ContentAsString(TEncoding.UTF8);
+      subtrairdadoscest(HTMLContent);
+    end
+    else
+      raise Exception.CreateFmt('Erro ao consultar NCM %s. Código HTTP: %d', [fNCM, Response.StatusCode]);
+  finally
+    HTTPClient.Free;
+  end;
+  {$ENDIF}
+end;
+
+  (*procedure TtaxGtin.NCMToCEST; //dependencia de dll openssll
 var
   i: integer;
   HTMLContent: string;
@@ -296,8 +393,8 @@ begin
   SSLHandler := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
   try
     SSLHandler.SSLOptions.Method := sslvTLSv1_2;
-    SSLHandler.SSLOptions.Mode := sslmClient;
-    HTTPClient.IOHandler := SSLHandler;
+    SSLHandler.SSLOptions.Mode   := sslmClient;
+    HTTPClient.IOHandler         := SSLHandler;
 
     // Obtemos o conteúdo do servidor
     var Response: string := HTTPClient.Get(urlsite + fNCM);
@@ -323,41 +420,63 @@ begin
 
 
 end;
-
+*)
 
 procedure TtaxGtin.subtrairdados(informacao: string);
+
+function TagTitulo(const Html, CodigoEAN: string): Boolean;
+var
+  TituloInicio, TituloFim: Integer;
+  Titulo: string;
+begin
+  // Procura onde começa e termina a tag <title>
+  TituloInicio := Pos('<title>', LowerCase(Html));
+  TituloFim    := Pos('</title>', LowerCase(Html));
+
+  if (TituloInicio > 0) and (TituloFim > TituloInicio) then
+  begin
+    // Extrai o conteúdo entre as tags
+    Titulo := Copy(Html, TituloInicio + Length('<title>'), TituloFim - TituloInicio - Length('<title>'));
+    Result := Pos(CodigoEAN, Titulo) > 0;
+  end
+  else
+    Result := False; // Não encontrou a tag <title>
+end;
+
+
 var
   i: integer;
-  HTMLContent: string;
-  DataList: TStringList;
+  EanOK : boolean ;
   const //alterar tags se site sofrer alteracao;
   taginihtml : string = '<h2 class="fonte-open-title h1-title" style="text-align:center;">';
   tagimhtml  : string = '</h2>';
 begin
   fretorno := informacao;
 
-  if AnsiContainsText(informacao, '01001345450801') then
+  eanOK := TagTitulo(informacao, fEAN);
+  if eanOK then
   begin
-    fDescricao := 'Código de barra inválido!';
-    fDescricao := '';
-    fNCM := '';
+    fNCM := RetornarConteudoEntre(fretorno, 'NCM:', '</a>', false) ;
+    fNCM := OnlyNumber(fNCM);
+    fNCM := copy(fNCM, 1,8);
+    fDescricao :=  (RemoverEspacosDuplos
+              (
+              RetornarConteudoEntre(
+                    fretorno,
+                    taginihtml,
+                    tagimhtml,
+                    false)
+               )
+          ) ;
+    //busca CEST pelo NCM em outro site.
+    NCMToCEST
+  end
+  else
+  begin
+   fDescricao := 'Código de barra não encontrado!';
+   fNCM       := '********';
+   fCest      := '*******';
   end;
-
-  fNCM := RetornarConteudoEntre(fretorno, 'NCM:', '</a>', false) ;
-  fNCM := OnlyNumber(fNCM);
-  fNCM := copy(fNCM, 1,8);
-  fDescricao :=  (RemoverEspacosDuplos
-                    (
-                    RetornarConteudoEntre(
-                          fretorno,
-                          taginihtml,
-                          tagimhtml,
-                          false)
-                     )
-                ) ;
-  //busca CEST pelo NCM em outro site.
-  NCMToCEST ;
-
 
 end;
 
