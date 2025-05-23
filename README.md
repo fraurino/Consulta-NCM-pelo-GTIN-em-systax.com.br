@@ -5,7 +5,8 @@ Consulta NCM,CEST e Descrição pelo código de barras(gtin) pelos portais: <p>
 - Consulta Imagem [https://www.cosmos.bluesoft.com.br/](https://www.cosmos.bluesoft.com.br)<p>
 - Consulta IBPT [https://www.api-ibpt.seunegocionanuvem.com.br/](https://www.api-ibpt.seunegocionanuvem.com.br)<p>
 
-![image](https://github.com/user-attachments/assets/d90518a9-f573-4bc7-8971-f277276129d2)
+![image](https://github.com/user-attachments/assets/28a4edfb-ce90-42e6-bf83-266f2324accb)
+
 
 
 # Contribua

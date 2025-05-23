@@ -514,6 +514,7 @@ begin
             Extensao := '.img'; // fallback genérico
         end;
 
+
         NomeArquivo := Diretorio + CodigoBarra + Extensao;
         Stream.SaveToFile(NomeArquivo);
         Result     := NomeArquivo;

@@ -66,3 +66,5 @@ __recovery/
 
 # Boss dependency manager vendor folder https://github.com/HashLoad/boss
 modules/
+*.png
+Pascal/exemplo/Win32/Debug/
