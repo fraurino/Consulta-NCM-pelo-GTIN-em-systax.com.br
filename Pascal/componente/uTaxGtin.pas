@@ -32,7 +32,7 @@ uses
   Vcl.Imaging.jpeg, // Para JPEG
   Vcl.Imaging.pngimage,  // Para PNG
   Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.Grids;
 
 type
   Tfrmconsulta = class(TForm)
@@ -44,10 +44,8 @@ type
     cest: TEdit;
     Label2: TLabel;
     Label4: TLabel;
-    Memo1: TMemo;
     Memo2: TMemo;
     Button3: TButton;
-    imgproduto: TImage;
     consultaimagem: TCheckBox;
     ComboBoxUF: TComboBox;
     consultaibpt: TCheckBox;
@@ -58,9 +56,23 @@ type
     municipal: TEdit;
     versao: TEdit;
     vigenciafim: TDateTimePicker;
+    Button2: TButton;
+    PageControl1: TPageControl;
+    Lotes: TTabSheet;
+    Cests: TTabSheet;
+    Memo1: TMemo;
+    PageControl2: TPageControl;
+    Texto: TTabSheet;
+    Grid: TTabSheet;
+    StringGrid1: TStringGrid;
+    Memo3: TMemo;
+    listacest: TCheckBox;
+    GroupBox1: TGroupBox;
+    imgproduto: TImage;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -133,10 +145,39 @@ begin
       carregaimagem (imgproduto, taxgtin.pathimagem);
      end;
    end;
+
+   if listacest.Checked then
+   begin
+    PageControl1.ActivePageIndex :=1;
+    StringGrid1.ColWidths[0] := 100; // Largura da coluna CEST
+    StringGrid1.ColWidths[1] := 600; // Largura da coluna Descrição
+    StringGrid1.Options := StringGrid1.Options + [goRowSelect, goColSizing];
+    taxGtin.ListarCESTsporNCM(taxGtin.ncm, memo3);
+    taxgtin.ListarCESTsEDescricoesGrid(taxGtin.ncm,StringGrid1);
+   end;
   finally
    taxGtin.Free;
   end;
 end;
+
+procedure Tfrmconsulta.Button2Click(Sender: TObject);
+var
+  taxGtin : TtaxGtin;
+begin
+  PageControl1.ActivePageIndex :=1;
+  taxGtin := TtaxGtin.Create(nil);
+  try
+   ncm.Text := '0901.21.00';
+   StringGrid1.ColWidths[0] := 100; // Largura da coluna CEST
+   StringGrid1.ColWidths[1] := 400; // Largura da coluna Descrição
+   StringGrid1.Options := StringGrid1.Options + [goRowSelect, goColSizing];
+   taxGtin.ListarCESTsporNCM(ncm.text, memo3);
+   taxgtin.ListarCESTsEDescricoesGrid(ncm.text, StringGrid1);
+  finally
+   taxGtin.Free;
+  end;
+end;
+
 
 procedure Tfrmconsulta.Button3Click(Sender: TObject);
 var
@@ -145,6 +186,7 @@ var
   gtin: string;
   i : integer;
  begin
+    PageControl1.ActivePageIndex :=0;
         try
           Memo1.Lines.Add('🚀 Iniciando a busca... ' + FormatDateTime('dd-mm-yyyy hh:nn:ss', Now));
           for i := 0 to Memo2.Lines.Count - 1 do

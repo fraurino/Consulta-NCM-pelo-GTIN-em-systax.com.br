@@ -51,14 +51,6 @@ object frmconsulta: Tfrmconsulta
     ExplicitTop = 142
     ExplicitWidth = 293
   end
-  object imgproduto: TImage
-    Left = 692
-    Top = 8
-    Width = 129
-    Height = 147
-    Center = True
-    Proportional = True
-  end
   object Label5: TLabel
     Left = 120
     Top = 58
@@ -67,8 +59,8 @@ object frmconsulta: Tfrmconsulta
     Caption = 'UF'
   end
   object Button1: TButton
-    Left = 224
-    Top = 130
+    Left = 120
+    Top = -1
     Width = 337
     Height = 25
     Caption = 'Consulta c'#243'digo de barras'
@@ -81,7 +73,7 @@ object frmconsulta: Tfrmconsulta
     Width = 106
     Height = 23
     TabOrder = 1
-    Text = '7506195196489'
+    Text = '7891008114003 '
     TextHint = 'c'#243'digo ean/gtin'
   end
   object ncm: TEdit
@@ -109,24 +101,6 @@ object frmconsulta: Tfrmconsulta
     TabOrder = 4
     TextHint = 'c'#243'digo cest'
   end
-  object Memo1: TMemo
-    Left = 135
-    Top = 192
-    Width = 686
-    Height = 277
-    Anchors = [akLeft, akTop, akRight, akBottom]
-    CharCase = ecUpperCase
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Segoe UI'
-    Font.Style = []
-    ParentFont = False
-    ScrollBars = ssVertical
-    TabOrder = 5
-    WordWrap = False
-    ExplicitWidth = 579
-  end
   object Memo2: TMemo
     Left = 8
     Top = 192
@@ -140,16 +114,16 @@ object frmconsulta: Tfrmconsulta
       '7891000100103'
       '7898215152002')
     ScrollBars = ssVertical
-    TabOrder = 6
+    TabOrder = 5
     ExplicitHeight = 323
   end
   object Button3: TButton
     Left = 8
     Top = 161
-    Width = 813
+    Width = 678
     Height = 25
     Caption = 'Consulta Lote'
-    TabOrder = 7
+    TabOrder = 6
     OnClick = Button3Click
   end
   object consultaimagem: TCheckBox
@@ -163,7 +137,7 @@ object frmconsulta: Tfrmconsulta
     Checked = True
     ParentBiDiMode = False
     State = cbChecked
-    TabOrder = 8
+    TabOrder = 7
   end
   object ComboBoxUF: TComboBox
     Left = 120
@@ -172,7 +146,7 @@ object frmconsulta: Tfrmconsulta
     Height = 23
     Cursor = crHandPoint
     Style = csDropDownList
-    TabOrder = 9
+    TabOrder = 8
     TextHint = 'UF'
   end
   object consultaibpt: TCheckBox
@@ -186,7 +160,7 @@ object frmconsulta: Tfrmconsulta
     Checked = True
     ParentBiDiMode = False
     State = cbChecked
-    TabOrder = 10
+    TabOrder = 9
   end
   object nacionalfederal: TEdit
     Left = 175
@@ -195,7 +169,7 @@ object frmconsulta: Tfrmconsulta
     Height = 23
     TabStop = False
     Color = clInfoBk
-    TabOrder = 11
+    TabOrder = 10
   end
   object importadosfederal: TEdit
     Left = 241
@@ -204,7 +178,7 @@ object frmconsulta: Tfrmconsulta
     Height = 23
     TabStop = False
     Color = clInfoBk
-    TabOrder = 12
+    TabOrder = 11
   end
   object estadual: TEdit
     Left = 307
@@ -213,7 +187,7 @@ object frmconsulta: Tfrmconsulta
     Height = 23
     TabStop = False
     Color = clInfoBk
-    TabOrder = 13
+    TabOrder = 12
   end
   object municipal: TEdit
     Left = 373
@@ -222,7 +196,7 @@ object frmconsulta: Tfrmconsulta
     Height = 23
     TabStop = False
     Color = clInfoBk
-    TabOrder = 14
+    TabOrder = 13
   end
   object versao: TEdit
     Left = 567
@@ -231,7 +205,7 @@ object frmconsulta: Tfrmconsulta
     Height = 23
     TabStop = False
     Color = clInfoBk
-    TabOrder = 16
+    TabOrder = 15
   end
   object vigenciafim: TDateTimePicker
     Left = 439
@@ -242,6 +216,132 @@ object frmconsulta: Tfrmconsulta
     Date = 45800.000000000000000000
     Time = 0.022172418983245730
     Color = clInfoBk
-    TabOrder = 15
+    TabOrder = 14
+  end
+  object Button2: TButton
+    Left = 120
+    Top = 130
+    Width = 247
+    Height = 25
+    Caption = 'Listar varios CEST pelo NCM'
+    TabOrder = 16
+    OnClick = Button2Click
+  end
+  object PageControl1: TPageControl
+    Left = 135
+    Top = 192
+    Width = 686
+    Height = 277
+    Cursor = crHandPoint
+    ActivePage = Lotes
+    TabOrder = 17
+    object Lotes: TTabSheet
+      Caption = 'Lotes'
+      object Memo1: TMemo
+        Left = 0
+        Top = 0
+        Width = 678
+        Height = 247
+        Align = alClient
+        CharCase = ecUpperCase
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+        ScrollBars = ssVertical
+        TabOrder = 0
+        WordWrap = False
+        ExplicitLeft = -8
+        ExplicitTop = -30
+        ExplicitWidth = 686
+        ExplicitHeight = 277
+      end
+    end
+    object Cests: TTabSheet
+      Caption = 'Cests'
+      ImageIndex = 1
+      object PageControl2: TPageControl
+        Left = 0
+        Top = 0
+        Width = 678
+        Height = 247
+        Cursor = crHandPoint
+        ActivePage = Grid
+        Align = alClient
+        TabOrder = 0
+        object Grid: TTabSheet
+          Caption = 'Grid'
+          ImageIndex = 1
+          object StringGrid1: TStringGrid
+            Left = 0
+            Top = 0
+            Width = 670
+            Height = 217
+            Align = alClient
+            TabOrder = 0
+            ExplicitLeft = 80
+            ExplicitTop = 96
+            ExplicitWidth = 320
+            ExplicitHeight = 120
+          end
+        end
+        object Texto: TTabSheet
+          Caption = 'Texto'
+          object Memo3: TMemo
+            Left = 0
+            Top = 0
+            Width = 670
+            Height = 217
+            Align = alClient
+            BorderStyle = bsNone
+            CharCase = ecUpperCase
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+            ScrollBars = ssVertical
+            TabOrder = 0
+            WordWrap = False
+          end
+        end
+      end
+    end
+  end
+  object listacest: TCheckBox
+    Left = 528
+    Top = 54
+    Width = 158
+    Height = 17
+    Cursor = crHandPoint
+    BiDiMode = bdRightToLeft
+    Caption = 'Listar todos os cests'
+    Checked = True
+    ParentBiDiMode = False
+    State = cbChecked
+    TabOrder = 18
+  end
+  object GroupBox1: TGroupBox
+    Left = 692
+    Top = 0
+    Width = 133
+    Height = 186
+    Caption = 'Foto'
+    TabOrder = 19
+    object imgproduto: TImage
+      Left = 2
+      Top = 17
+      Width = 129
+      Height = 167
+      Align = alClient
+      Center = True
+      Proportional = True
+      ExplicitLeft = 0
+      ExplicitTop = 6
+      ExplicitHeight = 147
+    end
   end
 end

@@ -42,7 +42,7 @@ uses
   {$IFDEF FPC}
   fphttp, fphttpclient, opensslsockets, sslsockets, DOM, XMLRead
   {$ELSE}
-  DateUtils, System.JSON, IdHTTP, IdSSL, IdSSLOpenSSL
+   grids, DateUtils, System.JSON, IdHTTP, IdSSL, IdSSLOpenSSL
   {$ENDIF}
   ;
 
@@ -80,6 +80,8 @@ type
     function CharIsNum(const C: Char): Boolean;
     function OnlyNumber(const AValue: String): String;
     procedure NCMToCEST;
+    procedure ListarCESTsEDescricoes(ALista: TStringList);
+
     function EANinCosmosbluesoft(const CodigoBarra: string): string;
     function BuscarInfoIBPT(const NCM, UF: string): boolean ;
 
@@ -87,6 +89,8 @@ type
     procedure executar (const getimg : boolean = false; const getibpt : boolean = false; const Estado : string = 'MA');
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure ListarCESTsporNCM(codigoncm: string; DestinoMemo: TMemo);
+    procedure ListarCESTsEDescricoesGrid(codigoncm : string ; AGrid: TStringGrid);
   published
     property ean: string read fEAN write setEAN;
     property descricao: string read fDESCRICAO;
@@ -340,6 +344,160 @@ begin
    BuscarInfoIBPT (fNCM, Estado);
   end;
 
+end;
+
+
+procedure TtaxGtin.ListarCESTsEDescricoes(ALista: TStringList);
+
+// Função auxiliar para limpar HTML da descrição
+function LimparDescricaoHTML(const TextoHTML: string): string;
+begin
+  Result := TextoHTML;
+
+  // Remove tags HTML
+  Result := TRegEx.Replace(Result, '<[^>]+>', '');
+
+  // Substitui entidades HTML
+  Result := StringReplace(Result, '&nbsp;', ' ', [rfReplaceAll, rfIgnoreCase]);
+
+  // Remove textos indesejados como botão e mensagem de uso
+  Result := TRegEx.Replace(Result, 'Vou usar este CEST.*', '', [roIgnoreCase]);
+
+  // Normaliza quebras de linha
+  Result := StringReplace(Result, #13, '', [rfReplaceAll]);
+  Result := StringReplace(Result, #10#10, #10, [rfReplaceAll]);
+  Result := StringReplace(Result, #10, sLineBreak, [rfReplaceAll]);
+
+  // Remove espaços em excesso no início das linhas
+  Result := TRegEx.Replace(Result, '^\s+', '', [roMultiLine]);
+
+  // Remove espaços em excesso no final
+  Result := Trim(Result);
+end;
+
+var
+  HTMLContent: string;
+  Response: IHTTPResponse;
+  HTTPClient: THTTPClient;
+  Matches: TMatchCollection;
+  Match: TMatch;
+  CEST, DescricaoHTML, DescricaoLimpa: string;
+  RegEx: TRegEx;
+const
+  urlsite: string = 'http://www.buscacest.com.br/?utf8=%E2%9C%93&ncm=';
+begin
+  ALista.Clear;
+  HTTPClient := THTTPClient.Create;
+  try
+    Response := HTTPClient.Get(urlsite + fNCM);
+    if Response.StatusCode = 200 then
+    begin
+      HTMLContent := Response.ContentAsString(TEncoding.UTF8);
+
+      // Expressão regular para capturar o CEST e a descrição
+      RegEx := TRegEx.Create(
+        '<td[^>]*class="text-right"[^>]*>\s*(\d{2}\.\d{3}\.\d{2})\s*</td>\s*' + // Captura o CEST
+        '<td[^>]*>(.*?)</td>',                                                 // Captura a descrição
+        [roIgnoreCase, roSingleLine]);
+
+      Matches := RegEx.Matches(HTMLContent);
+      for Match in Matches do
+      begin
+        CEST := Match.Groups[1].Value.Trim;
+        DescricaoHTML := Match.Groups[2].Value.Trim;
+
+        // Aplica a função de limpeza completa
+        DescricaoLimpa := LimparDescricaoHTML(DescricaoHTML);
+
+        // Adiciona à lista
+        ALista.Add(Format('%s - %s', [CEST, DescricaoLimpa]));
+      end;
+    end
+    else
+      raise Exception.CreateFmt('Erro ao consultar NCM %s. Código HTTP: %d', [fNCM, Response.StatusCode]);
+  finally
+    HTTPClient.Free;
+  end;
+end;
+
+
+procedure TtaxGtin.ListarCESTsEDescricoesGrid(codigoncm : string ; AGrid: TStringGrid);
+var
+  HTMLContent: string;
+  Response: IHTTPResponse;
+  HTTPClient: THTTPClient;
+  Matches: TMatchCollection;
+  Match: TMatch;
+  CEST, DescricaoHTML, DescricaoLimpa: string;
+  RegEx: TRegEx;
+  RowIndex: Integer;
+const
+  urlsite: string = 'http://www.buscacest.com.br/?utf8=%E2%9C%93&ncm=';
+begin
+  AGrid.RowCount := 2; // Header + 1 row para evitar erro
+  AGrid.ColCount := 2;
+  AGrid.Cells[0, 0] := 'CEST';
+  AGrid.Cells[1, 0] := 'Descrição';
+
+  HTTPClient := THTTPClient.Create;
+  try
+    fncm     := '';
+    fNCM     := codigoncm ;
+    Response := HTTPClient.Get(urlsite + fNCM);
+    if Response.StatusCode = 200 then
+    begin
+      HTMLContent := Response.ContentAsString(TEncoding.UTF8);
+
+      // Expressão regular para capturar o CEST e a descrição
+      RegEx := TRegEx.Create(
+        '<td[^>]*class="text-right"[^>]*>\s*(\d{2}\.\d{3}\.\d{2})\s*</td>\s*' + // Captura o CEST
+        '<td[^>]*>(.*?)</td>',                                                 // Captura a descrição
+        [roIgnoreCase, roSingleLine]);
+
+      Matches := RegEx.Matches(HTMLContent);
+          RowIndex := 1;
+      for Match in Matches do
+      begin
+        CEST := Match.Groups[1].Value.Trim;
+        DescricaoHTML := Match.Groups[2].Value.Trim;
+       // Limpeza
+        DescricaoLimpa := TRegEx.Replace(DescricaoHTML, '<br\s*/?>', sLineBreak, [roIgnoreCase]);
+        DescricaoLimpa := TRegEx.Replace(DescricaoLimpa, '<.*?>', '', [roIgnoreCase]);
+        DescricaoLimpa := StringReplace(DescricaoLimpa, '&nbsp;', ' ', [rfReplaceAll, rfIgnoreCase]);
+        DescricaoLimpa := TRegEx.Replace(DescricaoLimpa, 'Vou usar este CEST.*', '', [roIgnoreCase]);
+        DescricaoLimpa := StringReplace(DescricaoLimpa, #13, '', [rfReplaceAll]);
+        DescricaoLimpa := StringReplace(DescricaoLimpa, #10#10, #10, [rfReplaceAll]);
+        DescricaoLimpa := StringReplace(DescricaoLimpa, #10, sLineBreak, [rfReplaceAll]);
+        DescricaoLimpa := TRegEx.Replace(DescricaoLimpa, '^\s+', '', [roMultiLine]);
+        DescricaoLimpa := Trim(DescricaoLimpa);
+
+        AGrid.RowCount := RowIndex + 1;
+        AGrid.Cells[0, RowIndex] := CEST;
+        AGrid.Cells[1, RowIndex] := DescricaoLimpa;
+        Inc(RowIndex);
+      end;
+
+    end
+    else
+      raise Exception.CreateFmt('Erro ao consultar NCM %s. Código HTTP: %d', [fNCM, Response.StatusCode]);
+  finally
+    HTTPClient.Free;
+  end;
+end;
+
+
+procedure TtaxGtin.ListarCESTsporNCM(codigoncm: string; DestinoMemo: TMemo);
+var
+  ListaCEST: TStringList;
+begin
+  ListaCEST := TStringList.Create;
+  try
+    fNCM := codigoncm;
+    ListarCESTsEDescricoes(ListaCEST);
+    DestinoMemo.Lines.Assign(ListaCEST);
+  finally
+    ListaCEST.Free;
+  end;
 end;
 
 
