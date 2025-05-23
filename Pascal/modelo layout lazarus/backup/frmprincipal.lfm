@@ -196,7 +196,7 @@ object Form1: TForm1
         ParentFont = False
       end
       object Label2: TLabel
-        Left = 6
+        Left = 24
         Height = 89
         Top = 203
         Width = 116
@@ -207,9 +207,9 @@ object Form1: TForm1
         ParentFont = False
       end
       object Label3: TLabel
-        Left = 118
+        Left = 135
         Height = 81
-        Top = 212
+        Top = 210
         Width = 23
         Caption = 't'
         Font.Color = 2393575

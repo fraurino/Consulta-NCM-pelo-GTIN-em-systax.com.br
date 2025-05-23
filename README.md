@@ -1,9 +1,12 @@
 # Consulta NCM pelo GTIN em systax.com.br
 Consulta NCM,CEST e Descrição pelo código de barras(gtin) pelos portais: <p>
-[https://www.systax.com.br/](https://www.systax.com.br)<p>
-[https://www.buscacest.com.br/](https://www.buscacest.com.br)<p>
-![Imagem do WhatsApp de 2024-12-02 à(s) 12 23 10_a0f948ad](https://github.com/user-attachments/assets/cdfef1ca-6b04-462a-aaa0-e32e3f2bdc7f)
-![image](https://user-images.githubusercontent.com/26030963/207504807-fb420774-ccdd-4257-95f0-036c7efc93b1.png)
+- Consulta NCM [https://www.systax.com.br/](https://www.systax.com.br)<p>
+- Consulta CEST [https://www.buscacest.com.br/](https://www.buscacest.com.br)<p>
+- Consulta Imagem [https://www.cosmos.bluesoft.com.br/](https://www.cosmos.bluesoft.com.br)<p>
+- Consulta IBPT [https://www.api-ibpt.seunegocionanuvem.com.br/](https://www.api-ibpt.seunegocionanuvem.com.br)<p>
+
+![image](https://github.com/user-attachments/assets/d90518a9-f573-4bc7-8971-f277276129d2)
+
 
 # Contribua
 

@@ -1,13 +1,14 @@
 object Form1: TForm1
-  Left = 251
+  Left = 1740
   Height = 485
-  Top = 250
+  Top = 253
   Width = 946
   BorderStyle = bsNone
   Caption = 'Form1'
   ClientHeight = 485
   ClientWidth = 946
   Position = poScreenCenter
+  LCLVersion = '3.8.0.0'
   object Panel1: TPanel
     Left = 0
     Height = 485
@@ -262,7 +263,7 @@ object Form1: TForm1
           Left = 25
           Height = 13
           Top = 57
-          Width = 56
+          Width = 55
           Caption = 'NCM, CEST'
           Font.Color = clActiveBorder
           Font.Height = -11
@@ -294,7 +295,7 @@ object Form1: TForm1
           Left = 25
           Height = 13
           Top = 6
-          Width = 410
+          Width = 409
           Caption = 'Fonte : Consutla NCM,CEST via site www.systax.com.br | http://buscacest.com.br'
           Font.Color = 9723400
           Font.Height = -11
@@ -318,7 +319,7 @@ object Form1: TForm1
       object lbEdgtin: TLabeledEdit
         Left = 34
         Height = 21
-        Top = 152
+        Top = 112
         Width = 121
         BorderStyle = bsNone
         EditLabel.Height = 17

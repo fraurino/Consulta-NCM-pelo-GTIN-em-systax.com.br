@@ -29,10 +29,13 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,  System.Threading,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+  Vcl.Imaging.jpeg, // Para JPEG
+  Vcl.Imaging.pngimage,  // Para PNG
+  Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls;
 
 type
-  TForm1 = class(TForm)
+  Tfrmconsulta = class(TForm)
     Button1: TButton;
     gtin: TEdit;
     ncm: TEdit;
@@ -40,11 +43,21 @@ type
     Label1: TLabel;
     cest: TEdit;
     Label2: TLabel;
-    Label3: TLabel;
     Label4: TLabel;
     Memo1: TMemo;
     Memo2: TMemo;
     Button3: TButton;
+    imgproduto: TImage;
+    consultaimagem: TCheckBox;
+    ComboBoxUF: TComboBox;
+    consultaibpt: TCheckBox;
+    nacionalfederal: TEdit;
+    importadosfederal: TEdit;
+    Label5: TLabel;
+    estadual: TEdit;
+    municipal: TEdit;
+    versao: TEdit;
+    vigenciafim: TDateTimePicker;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -52,37 +65,80 @@ type
     { Private declarations }
   public
     { Public declarations }
+    procedure carregaimagem(AImage: TImage; const Arquivo: string);
+    procedure PreencherComboUF(Combo: TComboBox);
   end;
 
 var
-  Form1: TForm1;
+  frmconsulta: Tfrmconsulta;
 
 implementation
 
 uses
-  taxgtin;
+  taxgtinaux;
 
 {$R *.dfm}
 
-procedure TForm1.Button1Click(Sender: TObject);
+procedure Tfrmconsulta.PreencherComboUF(Combo: TComboBox);
+const
+  UFs: array[0..26] of string = (
+    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
+    'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN',
+    'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO');
+var
+  i: Integer;
+begin
+  Combo.Items.Clear;
+  for i := Low(UFs) to High(UFs) do
+    Combo.Items.Add(UFs[i]);
+  Combo.ItemIndex := 0; // seleciona a primeira UF por padrão
+end;
+
+
+procedure Tfrmconsulta.Button1Click(Sender: TObject);
 var
   taxGtin : TtaxGtin;
   i : integer;
+  baixaimagem : boolean;
+  cconsultaibpt : boolean ;
+  UF : string ;
 begin
   taxGtin := TtaxGtin.Create(nil);
   try
+    baixaimagem    := consultaimagem.Checked;
+    cconsultaibpt  := consultaibpt.Checked;
+    UF             := ComboBoxUF.Items[ComboBoxUF.ItemIndex];
+
    taxGtin.ean      := gtin.text;
-   taxGtin.executar ;
+   taxGtin.executar(baixaimagem , cconsultaibpt, UF );
    ncm.Text         := taxGtin.ncm;
    descricao.text   := taxGtin.descricao;
    cest.text        := taxGtin.cest;
    taxGtin.ean      := '';
+
+   if cconsultaibpt then
+   begin
+    nacionalfederal.Text     := taxgtin.NacionalFederal;
+    importadosfederal.Text   := taxgtin.importadosfederal;
+    estadual.Text            := taxgtin.estadual;
+    municipal.Text           := taxgtin.municipal;
+    vigenciafim.date         := taxgtin.vigenciafim;
+    versao.Text              := taxgtin.versao;
+   end;
+
+   if baixaimagem then
+   begin
+     if fileexists(taxgtin.pathimagem) then
+     begin
+      carregaimagem (imgproduto, taxgtin.pathimagem);
+     end;
+   end;
   finally
-    taxGtin.Free;
+   taxGtin.Free;
   end;
 end;
 
-procedure TForm1.Button3Click(Sender: TObject);
+procedure Tfrmconsulta.Button3Click(Sender: TObject);
 var
   taxGtin: TtaxGtin;
   Resultado: string;
@@ -134,10 +190,40 @@ var
         end;
  end;
 
-procedure TForm1.FormCreate(Sender: TObject);
+procedure Tfrmconsulta.carregaimagem(AImage: TImage; const Arquivo: string);
+var
+  Extensao: string;
+  Img: TGraphic;
+begin
+  if not FileExists(Arquivo) then
+    Exit;
+
+  AImage.Picture := nil;
+  Extensao := LowerCase(ExtractFileExt(Arquivo));
+
+  if Extensao = '.jpg' then
+    Img := TJPEGImage.Create
+  else if Extensao = '.jpeg' then
+    Img := TJPEGImage.Create
+  else if Extensao = '.png' then
+    Img := TPngImage.Create
+  else
+    Img := TBitmap.Create; // Para .bmp, .img ou outras genéricas
+
+  try
+    Img.LoadFromFile(Arquivo);
+    AImage.Picture.Assign(Img);
+  finally
+    Img.Free;
+  end;
+end;
+
+procedure Tfrmconsulta.FormCreate(Sender: TObject);
 begin
   self.Caption   := 'Consulta NCM, CEST via site www.systax.com.br | http://www.buscacest.com.br';
   Label4.Caption := 'Fonte : '+ self.Caption;
+  PreencherComboUF(ComboBoxUF);
+  vigenciafim.Date := date;
 end;
 
 end.

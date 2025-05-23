@@ -2,7 +2,7 @@
 
 uses
   Vcl.Forms,
-  uTaxGtin in '..\componente\uTaxGtin.pas' {Form1},
+  uTaxGtin in '..\componente\uTaxGtin.pas',
   taxgtin in '..\componente\taxgtin.pas';
 
 {$R *.res}
