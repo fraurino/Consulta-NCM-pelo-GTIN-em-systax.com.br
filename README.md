@@ -13,7 +13,6 @@ Consulta NCM, CEST, Descrição, Imagem e IBPT usando o código de barras (GTIN)
 ![Screenshot da versão free](https://github.com/user-attachments/assets/da27353c-346f-46a3-8f2f-de753b92a0e1)
 
 ---
-
 ## Versão Completa  
 Adquira a versão completa para Lazarus por R$ 50,00  
 🖥️💪 *Lazarus tem o poder!*
