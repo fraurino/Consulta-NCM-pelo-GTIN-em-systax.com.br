@@ -14,8 +14,8 @@ Consulta NCM, CEST, Descrição, Imagem e IBPT usando o código de barras (GTIN)
 
 ---
 ## Versão Completa  
-Adquira a versão completa para Lazarus por R$ 50,00  
-🖥️💪 *Lazarus tem o poder!*
+Adquira a versão completa para Lazarus ou para Delphi por R$ 50,00  
+🖥️💪 *Lazarus tem o poder! Delphi já sabe!*
 
 ## Assista ao vídeo
 [![Veja o vídeo no YouTube](https://img.youtube.com/vi/keqGi9dgOYE/0.jpg)](https://youtu.be/keqGi9dgOYE)
